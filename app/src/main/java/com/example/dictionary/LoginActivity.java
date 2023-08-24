@@ -80,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (true) {
+                        if (task.isSuccessful()) {
                             Toast.makeText(getApplicationContext(), "로그인 성공", Toast.LENGTH_LONG).show();
                             firebaseAuth.addAuthStateListener(firebaseAuthListener);
                         }
