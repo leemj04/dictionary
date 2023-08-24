@@ -4,6 +4,8 @@ import static android.app.Activity.RESULT_OK;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,19 +25,31 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.android.gms.auth.api.signin.internal.Storage;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SettingFragment extends Fragment {
     public TextView birthText;
@@ -45,6 +59,7 @@ public class SettingFragment extends Fragment {
     public FragmentManager fragmentManager;
     public SelectbirthdayFragment selectbirthdayFragment;
     public ImageView imageView;
+    public Uri uri;
 
     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -92,7 +107,29 @@ public class SettingFragment extends Fragment {
                 myRef1.child("User").child(uid).child("id").setValue(id);
                 myRef1.child("User").child(uid).child("birth").setValue(birth);
 
-                Toast.makeText(getContext(), "제출 성공", Toast.LENGTH_LONG).show();
+                // Create a storage reference from our app
+                StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+
+            // Create a reference to "mountains.jpg"
+                StorageReference profileRef = storageRef.child(uid+"/profile.jpg");
+
+                Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] data = baos.toByteArray();
+
+                UploadTask uploadTask = profileRef.putBytes(data);
+                uploadTask.addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // Handle unsuccessful uploads
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        Toast.makeText(getContext(), "제출되었습니다.", Toast.LENGTH_SHORT);
+                    }
+                });
             }
         });
 
@@ -115,7 +152,7 @@ public class SettingFragment extends Fragment {
                 public void onActivityResult(ActivityResult result) {
                     if (result.getResultCode() == RESULT_OK) {
                         Intent intent = result.getData();
-                        Uri uri = intent.getData();
+                        uri = intent.getData();
                         imageView.setImageURI(uri);
                     }
                 }

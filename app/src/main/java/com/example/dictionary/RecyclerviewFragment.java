@@ -46,6 +46,7 @@ public class RecyclerviewFragment extends Fragment {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new UserAdapter();
+        UserAdapter.context = getContext();
         recyclerView.setAdapter(adapter);
 
         myRef.addValueEventListener(new ValueEventListener() {
@@ -53,7 +54,11 @@ public class RecyclerviewFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 dataList.clear();
                 for(DataSnapshot ds: snapshot.getChildren()){
-                    UserAdapter.Item item = new UserAdapter.Item(ds.child("id").getValue().toString(), ds.child("birth").getValue().toString());
+                    UserAdapter.Item item = new UserAdapter.Item(
+                            ds.child("id").getValue().toString(),
+                            ds.child("birth").getValue().toString(),
+                            ds.child("uid").getValue().toString()
+                    );
                     dataList.add(item);
                     adapter.addItem(item);
                 }
