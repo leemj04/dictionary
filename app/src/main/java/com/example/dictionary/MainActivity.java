@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
     FragmentManager fragmentManager;
     RecyclerviewFragment recyclerviewFragment = new RecyclerviewFragment();
+    SettingFragment settingFragment = new SettingFragment();
     NavigationView navigationView;
     DrawerLayout drawerLayout;
     ActionBarDrawerToggle drawerToggle;
@@ -54,7 +55,8 @@ public class MainActivity extends AppCompatActivity {
                 } else if(id == R.id.bottom_menu){
                     drawerLayout.openDrawer(GravityCompat.START);
                 } else if(id == R.id.bottom_setting){
-
+                    fragmentManager.beginTransaction().replace(R.id.main_frame, settingFragment)
+                            .commit();
                 } else if(id == R.id.bottom_info){
 
                 }
