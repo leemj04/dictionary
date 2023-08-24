@@ -2,16 +2,26 @@ package com.example.dictionary;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -20,6 +30,9 @@ public class RecyclerviewFragment extends Fragment {
     UserAdapter adapter;
     EditText searchText;
     ArrayList<UserAdapter.Item> dataList = new ArrayList<>();
+    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    FirebaseDatabase database = FirebaseDatabase.getInstance();
+    DatabaseReference myRef = database.getReference("User");
 
     public RecyclerviewFragment() { }
 
@@ -33,12 +46,26 @@ public class RecyclerviewFragment extends Fragment {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new UserAdapter();
-
-        for(int i=0;i<=10;i++) {
-            dataList.add(new UserAdapter.Item("UserID"+i, "2023/08/25"));
-            adapter.addItem(new UserAdapter.Item("UserID"+i, "2023/08/25"));
-        }
         recyclerView.setAdapter(adapter);
+
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                dataList.clear();
+                for(DataSnapshot ds: snapshot.getChildren()){
+                    UserAdapter.Item item = new UserAdapter.Item(ds.child("id").getValue().toString(), ds.child("birth").getValue().toString());
+                    dataList.add(item);
+                    adapter.addItem(item);
+                }
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
 
         searchText.addTextChangedListener(new TextWatcher() {
             @Override

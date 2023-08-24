@@ -51,7 +51,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     }
 
     public static class Item {
-        String id, birth;
+        String id, birth, profile, uid;
 
         public Item(String id, String birth) {
             this.id = id;
