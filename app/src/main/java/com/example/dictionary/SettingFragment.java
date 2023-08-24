@@ -13,6 +13,7 @@ import android.widget.CalendarView;
 import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
@@ -79,6 +80,8 @@ public class SettingFragment extends Fragment {
                 myRef1.child("User").child(uid).child("profile").setValue(profile);
                 myRef1.child("User").child(uid).child("id").setValue(id);
                 myRef1.child("User").child(uid).child("birth").setValue(birth);
+
+                Toast.makeText(getContext(), "제출 성공", Toast.LENGTH_LONG).show();
             }
         });
 

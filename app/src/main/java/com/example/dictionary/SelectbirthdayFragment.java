@@ -39,7 +39,7 @@ public class SelectbirthdayFragment extends Fragment {
         calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView calendarView, int year, int month, int day) {
-                calendar.set(year, month, day);
+                calendar.set(year, month+1, day);
                 calendarView.setDate(calendar.getTimeInMillis());
             }
         });
