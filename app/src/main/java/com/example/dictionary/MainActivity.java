@@ -16,6 +16,7 @@ public class MainActivity extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
     FragmentManager fragmentManager;
     RecyclerviewFragment recyclerviewFragment = new RecyclerviewFragment();
+    SettingFragment settingFragment = new SettingFragment();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,7 +39,8 @@ public class MainActivity extends AppCompatActivity {
                 } else if(id == R.id.bottom_menu){
 
                 } else if(id == R.id.bottom_setting){
-
+                    fragmentManager.beginTransaction().replace(R.id.main_frame, settingFragment)
+                            .commit();
                 } else if(id == R.id.bottom_info){
 
                 }
