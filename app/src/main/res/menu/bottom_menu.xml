@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/bottom_menu"
+        android:enabled="true"
+        android:icon="@drawable/baseline_menu_24"
+        android:title="메뉴"
+        app:showAsAction="always"
+        />
+    <item
+        android:id="@+id/bottom_info"
+        android:enabled="true"
+        android:icon="@drawable/baseline_chat_24"
+        android:title="정보"
+        app:showAsAction="always"
+        />
+
+    <item
+        android:id="@+id/bottom_home"
+        android:enabled="true"
+        android:icon="@drawable/baseline_home_24"
+        android:title="홈"
+        app:showAsAction="always"
+        />
+
+
+    <item
+        android:id="@+id/bottom_setting"
+        android:enabled="true"
+        android:icon="@drawable/baseline_settings_24"
+        android:title="설정"
+        app:showAsAction="always"
+        />
+</menu>
