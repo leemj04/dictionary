@@ -77,6 +77,12 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
                 viewHolder.imageView.setImageBitmap(bitmap);
             }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                e.printStackTrace();
+                viewHolder.imageView.setImageResource(R.drawable.baseline_perm_identity_24);
+            }
         });
     }
 

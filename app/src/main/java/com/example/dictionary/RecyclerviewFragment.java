@@ -52,6 +52,7 @@ public class RecyclerviewFragment extends Fragment {
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                adapter.items.clear();
                 dataList.clear();
                 for(DataSnapshot ds: snapshot.getChildren()){
                     UserAdapter.Item item = new UserAdapter.Item(
