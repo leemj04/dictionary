@@ -55,13 +55,15 @@ public class RecyclerviewFragment extends Fragment {
                 adapter.items.clear();
                 dataList.clear();
                 for(DataSnapshot ds: snapshot.getChildren()){
-                    UserAdapter.Item item = new UserAdapter.Item(
-                            ds.child("id").getValue().toString(),
-                            ds.child("birth").getValue().toString(),
-                            ds.child("uid").getValue().toString()
-                    );
-                    dataList.add(item);
-                    adapter.addItem(item);
+                    String id = ds.child("id").getValue().toString();
+                    String birth = ds.child("birth").getValue().toString();
+                    String uid = ds.child("uid").getValue().toString();
+
+                    if (id != null && birth != null && uid != null) {
+                        UserAdapter.Item item = new UserAdapter.Item(id, birth, uid);
+                        dataList.add(item);
+                        adapter.addItem(item);
+                    }
                 }
                 adapter.notifyDataSetChanged();
             }
