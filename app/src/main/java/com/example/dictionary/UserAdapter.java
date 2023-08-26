@@ -43,7 +43,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
             userbirth.setText(item.getBirth());
 
             StorageReference storageRef = FirebaseStorage.getInstance().getReference();
-            StorageReference profileRef = storageRef.child(item.uid+"/profile.jpg");
+            StorageReference profileRef = storageRef.child(item.getUid()+"/profile.jpg");
 
             File localFile = null;
             try {
@@ -103,5 +103,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
         public String getId() { return id; }
         public String getBirth() { return birth; }
+        public String getUid() { return uid; }
     }
 }
