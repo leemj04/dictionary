@@ -41,6 +41,31 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         public void setItem(Item item) {
             userid.setText(item.getId());
             userbirth.setText(item.getBirth());
+
+            StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+            StorageReference profileRef = storageRef.child(item.uid+"/profile.jpg");
+
+            File localFile = null;
+            try {
+                localFile = File.createTempFile("images", "jpg");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            profileRef.getBytes(1000000).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                @Override
+                public void onSuccess(byte[] bytes) {
+                    Bitmap bitmap = BitmapFactory.decodeByteArray( bytes, 0, bytes.length ) ;
+
+                    imageView.setImageBitmap(bitmap);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    e.printStackTrace();
+                    imageView.setImageResource(R.drawable.baseline_perm_identity_24);
+                }
+            });
         }
     }
 
@@ -56,34 +81,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
         Item item = items.get(position);
         viewHolder.setItem(item);
-
-        StorageReference storageRef = FirebaseStorage.getInstance().getReference();
-
-        // Create a reference to "mountains.jpg"
-        StorageReference profileRef = storageRef.child(item.uid+"/profile.jpg");
-
-
-        File localFile = null;
-        try {
-            localFile = File.createTempFile("images", "jpg");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        profileRef.getBytes(1000000).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-            @Override
-            public void onSuccess(byte[] bytes) {
-                Bitmap bitmap = BitmapFactory.decodeByteArray( bytes, 0, bytes.length ) ;
-
-                viewHolder.imageView.setImageBitmap(bitmap);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                e.printStackTrace();
-                viewHolder.imageView.setImageResource(R.drawable.baseline_perm_identity_24);
-            }
-        });
     }
 
     @Override
