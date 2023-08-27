@@ -3,6 +3,7 @@ package com.example.dictionary;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +26,15 @@ import java.util.ArrayList;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     public ArrayList<Item> items = new ArrayList<>();
+    public static View view;
     public static Context context;
+    public interface OnItemClickListener {
+        void onItemClicked(Item item);
+    }
+    public static OnItemClickListener itemClickListener;
+    public void setOnItemClickListener (OnItemClickListener listener) {
+        itemClickListener = listener;
+    }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView userid, userbirth;
@@ -66,12 +75,22 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                     imageView.setImageResource(R.drawable.baseline_perm_identity_24);
                 }
             });
+
+            UserAdapter.view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    itemClickListener.onItemClicked(item);
+                }
+            });
         }
+
+        public TextView getUserId() { return userid; }
+        public TextView getUserBirth() { return userbirth; }
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        View view = LayoutInflater.from(viewGroup.getContext())
+        view = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.recyclerview_item, viewGroup, false);
 
         return new ViewHolder(view);

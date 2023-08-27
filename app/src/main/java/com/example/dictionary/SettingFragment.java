@@ -99,19 +99,16 @@ public class SettingFragment extends Fragment {
             public void onClick(View view) {
                 String id = userId.getText().toString();
                 String birth = birthText.getText().toString();
-                String profile = "";
                 String uid = user.getUid();
+                String profile = uid+"/profile.jpg";
 
                 myRef1.child("User").child(uid).child("uid").setValue(uid);
                 myRef1.child("User").child(uid).child("profile").setValue(profile);
                 myRef1.child("User").child(uid).child("id").setValue(id);
                 myRef1.child("User").child(uid).child("birth").setValue(birth);
 
-                // Create a storage reference from our app
                 StorageReference storageRef = FirebaseStorage.getInstance().getReference();
-
-            // Create a reference to "mountains.jpg"
-                StorageReference profileRef = storageRef.child(uid+"/profile.jpg");
+                StorageReference profileRef = storageRef.child(profile);
 
                 Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();

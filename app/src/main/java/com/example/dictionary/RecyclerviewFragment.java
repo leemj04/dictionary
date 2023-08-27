@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,6 +34,8 @@ public class RecyclerviewFragment extends Fragment {
     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference("User");
+    FragmentManager fragmentManager;
+    IteminfoFragment iteminfoFragment = new IteminfoFragment();
 
     public RecyclerviewFragment() { }
 
@@ -48,6 +51,19 @@ public class RecyclerviewFragment extends Fragment {
         adapter = new UserAdapter();
         UserAdapter.context = getContext();
         recyclerView.setAdapter(adapter);
+
+        adapter.setOnItemClickListener(new UserAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClicked(UserAdapter.Item item) {
+                Bundle bundle = new Bundle();
+                bundle.putString("userid", item.getId());
+                bundle.putString("userbirth", item.getBirth());
+
+                fragmentManager = getParentFragmentManager();
+                fragmentManager.setFragmentResult("data", bundle);
+                fragmentManager.beginTransaction().replace(R.id.main_frame, iteminfoFragment).commit();
+            }
+        });
 
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
