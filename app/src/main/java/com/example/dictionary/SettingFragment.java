@@ -60,6 +60,7 @@ public class SettingFragment extends Fragment {
     public SelectbirthdayFragment selectbirthdayFragment;
     public ImageView imageView;
     public Uri uri;
+    Boolean ck = false;
 
     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -100,33 +101,36 @@ public class SettingFragment extends Fragment {
                 String id = userId.getText().toString();
                 String birth = birthText.getText().toString();
                 String uid = user.getUid();
-                String profile = uid+"/profile.jpg";
+                String profile = "";
+                if (ck) profile = uid+"/profile.jpg";
 
                 myRef1.child("User").child(uid).child("uid").setValue(uid);
                 myRef1.child("User").child(uid).child("profile").setValue(profile);
                 myRef1.child("User").child(uid).child("id").setValue(id);
                 myRef1.child("User").child(uid).child("birth").setValue(birth);
 
-                StorageReference storageRef = FirebaseStorage.getInstance().getReference();
-                StorageReference profileRef = storageRef.child(profile);
+                if (ck) {
+                    StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+                    StorageReference profileRef = storageRef.child(profile);
 
-                Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                byte[] data = baos.toByteArray();
+                    Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                    byte[] data = baos.toByteArray();
 
-                UploadTask uploadTask = profileRef.putBytes(data);
-                uploadTask.addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        // Handle unsuccessful uploads
-                    }
-                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        Toast.makeText(getContext(), "제출되었습니다.", Toast.LENGTH_SHORT);
-                    }
-                });
+                    UploadTask uploadTask = profileRef.putBytes(data);
+                    uploadTask.addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+                            // Handle unsuccessful uploads
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Toast.makeText(getContext(), "제출되었습니다.", Toast.LENGTH_SHORT);
+                        }
+                    });
+                }
             }
         });
 
@@ -151,6 +155,7 @@ public class SettingFragment extends Fragment {
                         Intent intent = result.getData();
                         uri = intent.getData();
                         imageView.setImageURI(uri);
+                        ck = true;
                     }
                 }
             });

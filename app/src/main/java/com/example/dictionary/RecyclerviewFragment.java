@@ -85,13 +85,11 @@ public class RecyclerviewFragment extends Fragment {
             public void onStartClicked(UserAdapter.Item item) {
                 if (item.getStar()) {
                     friends.child(user.getUid()).child(item.getUid()).removeValue();
-                    myRef.child(user.getUid()).child("update").setValue("1");
-                    myRef.child(user.getUid()).child("update").setValue("0");
                 } else {
                     friends.child(user.getUid()).child(item.getUid()).setValue(true);
-                    myRef.child(user.getUid()).child("update").setValue("1");
-                    myRef.child(user.getUid()).child("update").setValue("0");
                 }
+                myRef.child(user.getUid()).child("update").setValue("1");
+                myRef.child(user.getUid()).child("update").setValue("0");
             }
         });
 
