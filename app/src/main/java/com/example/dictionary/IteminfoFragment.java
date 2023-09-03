@@ -9,13 +9,20 @@ import androidx.fragment.app.FragmentResultListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class IteminfoFragment extends Fragment {
 
     TextView userId, userBirth;
+    Button backbtn;
     public IteminfoFragment() { }
+
+    public interface onClickListener{
+        public void onClick();
+    }
+    static onClickListener listener;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -25,6 +32,7 @@ public class IteminfoFragment extends Fragment {
 
         userId = v.findViewById(R.id.id_detail);
         userBirth = v.findViewById(R.id.birthday_detail);
+        backbtn = v.findViewById(R.id.button_back);
 
         getParentFragmentManager().setFragmentResultListener("data", this, new FragmentResultListener() {
             @Override
@@ -36,6 +44,14 @@ public class IteminfoFragment extends Fragment {
                 userBirth.setText(userbirth);
             }
         });
+
+        backbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listener.onClick();
+            }
+        });
+
         return v;
     }
 }

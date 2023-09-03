@@ -28,28 +28,42 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     public ArrayList<Item> items = new ArrayList<>();
     public static View view;
     public static Context context;
+
     public interface OnItemClickListener {
         void onItemClicked(Item item);
     }
+    public interface OnStarClickListener {
+        void onStartClicked(Item item);
+    }
     public static OnItemClickListener itemClickListener;
+    public static OnStarClickListener starClickListener;
     public void setOnItemClickListener (OnItemClickListener listener) {
         itemClickListener = listener;
+    }
+    public void setOnStarClickListener (OnStarClickListener listener) {
+        starClickListener = listener;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView userid, userbirth;
-        public ImageView imageView;
+        public ImageView imageView, star;
 
         public ViewHolder(View view) {
             super(view);
-            userid = (TextView) view.findViewById(R.id.user_id);
-            userbirth = (TextView) view.findViewById(R.id.user_birth);
+            userid = view.findViewById(R.id.user_id);
+            userbirth = view.findViewById(R.id.user_birth);
             imageView = view.findViewById(R.id.profile);
+            star = view.findViewById(R.id.star);
         }
 
         public void setItem(Item item) {
             userid.setText(item.getId());
             userbirth.setText(item.getBirth());
+            if (item.getStar()) {
+                star.setImageResource(R.drawable.baseline_star_24);
+            } else {
+                star.setImageResource(R.drawable.baseline_star_border_24);
+            }
 
             StorageReference storageRef = FirebaseStorage.getInstance().getReference();
             StorageReference profileRef = storageRef.child(item.getUid()+"/profile.jpg");
@@ -82,6 +96,11 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                     itemClickListener.onItemClicked(item);
                 }
             });
+
+            star.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) { starClickListener.onStartClicked(item); }
+            });
         }
 
         public TextView getUserId() { return userid; }
@@ -112,16 +131,19 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     }
 
     public static class Item {
-        String id, birth, profile, uid;
+        String id, birth, uid;
+        Boolean star;
 
-        public Item(String id, String birth, String uid) {
+        public Item(String id, String birth, String uid, Boolean star) {
             this.id = id;
             this.birth = birth;
             this.uid = uid;
+            this.star = star;
         }
 
         public String getId() { return id; }
         public String getBirth() { return birth; }
         public String getUid() { return uid; }
+        public Boolean getStar() { return star; }
     }
 }

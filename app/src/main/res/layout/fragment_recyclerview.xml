@@ -37,4 +37,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:menu="@menu/bottom_menu"
         app:labelVisibilityMode="labeled"/>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/item_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteX="179dp"
+        tools:layout_editor_absoluteY="171dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>
