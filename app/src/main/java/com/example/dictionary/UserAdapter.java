@@ -28,7 +28,7 @@ import java.util.List;
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
     public ArrayList<Item> items = new ArrayList<>();
-    public static View view;
+
     public static Context context;
     int starNum = 0;
 
@@ -44,6 +44,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView userid, userbirth;
         public ImageView imageView, star;
+        public View parentView;
 
         public ViewHolder(View view) {
             super(view);
@@ -51,6 +52,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
             userbirth = view.findViewById(R.id.user_birth);
             imageView = view.findViewById(R.id.profile);
             star = view.findViewById(R.id.star);
+            parentView = view;
         }
 
         public void setItem(Item item) {
@@ -89,7 +91,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
 
 
-            UserAdapter.view.setOnClickListener(new View.OnClickListener() {
+            parentView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) { itemClickListener.onItemClicked(item); }
             });
@@ -106,7 +108,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        view = LayoutInflater.from(viewGroup.getContext())
+        View view = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.recyclerview_item, viewGroup, false);
 
         return new ViewHolder(view);
