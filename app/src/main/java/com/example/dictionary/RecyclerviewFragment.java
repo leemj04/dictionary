@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -43,6 +44,7 @@ public class RecyclerviewFragment extends Fragment {
     DatabaseReference friends = database.getReference("friends");
     FragmentManager fragmentManager;
     IteminfoFragment iteminfoFragment = new IteminfoFragment();
+    int cnt_star = 0;
 
     public RecyclerviewFragment() { }
 
@@ -78,15 +80,14 @@ public class RecyclerviewFragment extends Fragment {
                 fragmentManager.setFragmentResult("data", bundle);
                 fragmentManager.beginTransaction().replace(R.id.item_fragment, iteminfoFragment).commit();
             }
-        });
 
-        adapter.setOnStarClickListener(new UserAdapter.OnStarClickListener() {
-            @Override
-            public void onStartClicked(UserAdapter.Item item) {
+            public void onStarClicked(UserAdapter.Item item, int position) {
                 if (item.getStar()) {
                     friends.child(user.getUid()).child(item.getUid()).removeValue();
+                    cnt_star -= 1;
                 } else {
                     friends.child(user.getUid()).child(item.getUid()).setValue(true);
+                    cnt_star += 1;
                 }
                 myRef.child(user.getUid()).child("update").setValue("1");
                 myRef.child(user.getUid()).child("update").setValue("0");
@@ -114,6 +115,7 @@ public class RecyclerviewFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 dataList.clear();
                 adapter.items.clear();
+
                 for (DataSnapshot ds: snapshot.getChildren()) {
                     if (friendList.contains(ds.getKey())) {
                         String id = ds.child("id").getValue().toString();
@@ -123,8 +125,6 @@ public class RecyclerviewFragment extends Fragment {
 
                         adapter.addItem(item);
                         dataList.add(item);
-
-                        Log.e("X", ds.getKey());
                     }
                 }
 
@@ -137,12 +137,8 @@ public class RecyclerviewFragment extends Fragment {
 
                         adapter.addItem(item);
                         dataList.add(item);
-
-                        Log.e("Y", ds.getKey());
                     }
                 }
-
-                adapter.notifyDataSetChanged();
             }
 
             @Override

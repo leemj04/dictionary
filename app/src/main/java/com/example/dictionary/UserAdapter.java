@@ -31,17 +31,11 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
     public interface OnItemClickListener {
         void onItemClicked(Item item);
-    }
-    public interface OnStarClickListener {
-        void onStartClicked(Item item);
+        void onStarClicked(Item item, int position);
     }
     public static OnItemClickListener itemClickListener;
-    public static OnStarClickListener starClickListener;
     public void setOnItemClickListener (OnItemClickListener listener) {
         itemClickListener = listener;
-    }
-    public void setOnStarClickListener (OnStarClickListener listener) {
-        starClickListener = listener;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -92,14 +86,12 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
             UserAdapter.view.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View view) {
-                    itemClickListener.onItemClicked(item);
-                }
+                public void onClick(View view) { itemClickListener.onItemClicked(item); }
             });
 
             star.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View view) { starClickListener.onStartClicked(item); }
+                public void onClick(View view) { itemClickListener.onStarClicked(item, getAdapterPosition()); }
             });
         }
 
@@ -116,7 +108,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, final int position) {
+    public void onBindViewHolder(ViewHolder viewHolder, int position) {
         Item item = items.get(position);
         viewHolder.setItem(item);
     }
