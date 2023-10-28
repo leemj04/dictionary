@@ -23,11 +23,14 @@ import com.google.firebase.storage.StorageReference;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
+
     public ArrayList<Item> items = new ArrayList<>();
     public static View view;
     public static Context context;
+    int starNum = 0;
 
     public interface OnItemClickListener {
         void onItemClicked(Item item);
@@ -84,6 +87,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                 }
             });
 
+
+
             UserAdapter.view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) { itemClickListener.onItemClicked(item); }
@@ -113,19 +118,89 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         viewHolder.setItem(item);
     }
 
+
     @Override
     public int getItemCount() {
         return items.size();
     }
+    public void printItems(String pre){
+        System.out.print(pre+"items: [");
+        for(Item item: items){
+            System.out.print("("+item.uid+", "+ item.star+"),");
+        }
+        System.out.println("]");
+    }
 
     public void addItem(Item item) {
-        items.add(item);
+        if(item.star){
+            items.add(starNum, item);
+            notifyItemInserted(starNum);
+            starNum += 1;
+        } else{
+            items.add(item);
+            notifyItemInserted(items.size()-1);
+        }
+        printItems("Add");
     }
+    public void changeItem(String uid, Item x){
+        int pos = 0, i= 0;
+        for(Item item: items){
+            if(item.uid.equals(uid)){
+                pos = i;
+            }
+            i += 1;
+        }
+        if(items.get(pos).star == x.star){
+            items.remove(pos);
+            items.add(pos, x);
+            notifyItemChanged(pos);
+        } else{
+            if(items.get(pos).star) starNum--;
+            items.remove(pos);
+            notifyItemRemoved(pos);
+            addItem(x);
+        }
+        printItems("Change");
+    }
+    public void changeItemStar(String uid){
+        int pos = -1, i= 0;
+        for(Item item: items){
+            if(item.uid.equals(uid)){
+                pos = i;
+            }
+            i += 1;
+        }
+        if(pos == -1) return;
+        Item x = new Item(items.get(pos));
+        x.star = !x.star;
+        if(items.get(pos).star) starNum--;
+        items.remove(pos);
+        notifyItemRemoved(pos);
+        addItem(x);
+        printItems("ChangeStar");
+    }
+
+    public void removeItem(String uid){
+        int pos = 0, i= 0;
+        for(Item item: items){
+            if(item.uid.equals(uid)){
+                pos = i;
+            }
+            i += 1;
+        }
+        if(items.get(pos).star) starNum--;
+        items.remove(pos);
+        notifyItemRemoved(pos);
+        printItems("Remove");
+    }
+
 
     public static class Item {
         String id, birth, uid;
         Boolean star;
-
+        public Item(Item item){
+            this(item.id, item.birth, item.uid, item.star);
+        }
         public Item(String id, String birth, String uid, Boolean star) {
             this.id = id;
             this.birth = birth;

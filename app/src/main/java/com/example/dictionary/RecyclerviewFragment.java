@@ -3,6 +3,7 @@ package com.example.dictionary;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -23,6 +24,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -34,7 +36,7 @@ import java.util.ArrayList;
 
 public class RecyclerviewFragment extends Fragment {
     RecyclerView recyclerView;
-    UserAdapter adapter;
+    UserAdapter adapter = new UserAdapter();
     EditText searchText;
     ArrayList<UserAdapter.Item> dataList = new ArrayList<>();
     ArrayList<String> friendList = new ArrayList<>();
@@ -44,7 +46,76 @@ public class RecyclerviewFragment extends Fragment {
     DatabaseReference friends = database.getReference("friends");
     FragmentManager fragmentManager;
     IteminfoFragment iteminfoFragment = new IteminfoFragment();
-    int cnt_star = 0;
+    String text = "";
+
+    ChildEventListener friendsListener = new ChildEventListener() {
+        @Override
+        public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            String uid = snapshot.getKey();
+            System.out.println("frinedsAdded:"+uid);
+            friendList.add(uid);
+            adapter.changeItemStar(uid);
+        }
+
+        @Override
+        public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+        @Override
+        public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+            String uid = snapshot.getKey();
+            friendList.remove(uid);
+            adapter.changeItemStar(uid);
+        }
+
+        @Override
+        public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError error) {}
+    };
+
+    ChildEventListener myRefListener = new ChildEventListener() {
+        @Override
+        public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            String id = snapshot.child("id").getValue().toString();
+            String birth = snapshot.child("birth").getValue().toString();
+            String uid = snapshot.child("uid").getValue().toString();
+            if(!id.contains(text)) return;
+            if(friendList.contains(uid)){
+                adapter.addItem(new UserAdapter.Item(id, birth, uid, true));
+            } else{
+                adapter.addItem(new UserAdapter.Item(id, birth, uid, false));
+            }
+        }
+
+        @Override
+        public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            String id = snapshot.child("id").getValue().toString();
+            String birth = snapshot.child("birth").getValue().toString();
+            String uid = snapshot.child("uid").getValue().toString();
+            if(!id.contains(text)) return;
+            adapter.changeItem(uid, new UserAdapter.Item(id, birth, uid, friendList.contains(uid)));
+        }
+
+        @Override
+        public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+            String uid = snapshot.child("uid").getValue().toString();
+            String id = snapshot.child("id").getValue().toString();
+            if(!id.contains(text)) return;
+            adapter.removeItem(uid);
+        }
+
+        @Override
+        public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError error) {
+
+        }
+    };
+
 
     public RecyclerviewFragment() { }
 
@@ -57,7 +128,6 @@ public class RecyclerviewFragment extends Fragment {
         searchText = v.findViewById(R.id.user_find);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new UserAdapter();
         UserAdapter.context = getContext();
         recyclerView.setAdapter(adapter);
 
@@ -84,94 +154,61 @@ public class RecyclerviewFragment extends Fragment {
             public void onStarClicked(UserAdapter.Item item, int position) {
                 if (item.getStar()) {
                     friends.child(user.getUid()).child(item.getUid()).removeValue();
-                    cnt_star -= 1;
                 } else {
                     friends.child(user.getUid()).child(item.getUid()).setValue(true);
-                    cnt_star += 1;
                 }
                 myRef.child(user.getUid()).child("update").setValue("1");
                 myRef.child(user.getUid()).child("update").setValue("0");
             }
         });
 
-        friends.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                friendList.clear();
-                for (DataSnapshot ds: snapshot.child(user.getUid()).getChildren()) {
-                    String friendUid = ds.getKey();
-                    friendList.add(friendUid);
-                }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                dataList.clear();
-                adapter.items.clear();
-
-                for (DataSnapshot ds: snapshot.getChildren()) {
-                    if (friendList.contains(ds.getKey())) {
-                        String id = ds.child("id").getValue().toString();
-                        String birth = ds.child("birth").getValue().toString();
-                        String uid = ds.child("uid").getValue().toString();
-                        UserAdapter.Item item = new UserAdapter.Item(id, birth, uid, true);
-
-                        adapter.addItem(item);
-                        dataList.add(item);
-                    }
-                }
-
-                for (DataSnapshot ds: snapshot.getChildren()) {
-                    if (!friendList.contains(ds.getKey())) {
-                        String id = ds.child("id").getValue().toString();
-                        String birth = ds.child("birth").getValue().toString();
-                        String uid = ds.child("uid").getValue().toString();
-                        UserAdapter.Item item = new UserAdapter.Item(id, birth, uid, false);
-
-                        adapter.addItem(item);
-                        dataList.add(item);
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-
-        searchText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                String text = s.toString();
-                adapter.items.clear();
-                for(UserAdapter.Item item: dataList){
-                    if(item.id.contains(text)){
-                        adapter.addItem(item);
-                    }
-                }
-                adapter.notifyDataSetChanged();
-            }
-        });
 
         return v;
+    }
+
+    TextWatcher textwatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            friends.child(user.getUid()).removeEventListener(friendsListener);
+            myRef.removeEventListener(myRefListener);
+            friendList.clear();
+            adapter.items.clear();
+            adapter.starNum = 0;
+            adapter.notifyDataSetChanged();
+            text = s.toString();
+            friends.child(user.getUid()).addChildEventListener(friendsListener);
+            myRef.addChildEventListener(myRefListener);
+        }
+    };
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        friends.child(user.getUid()).addChildEventListener(friendsListener);
+        myRef.addChildEventListener(myRefListener);
+        searchText.addTextChangedListener(textwatcher);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        friends.child(user.getUid()).removeEventListener(friendsListener);
+        myRef.removeEventListener(myRefListener);
+        friendList.clear();
+        adapter.items.clear();
+        adapter.starNum = 0;
+        adapter.notifyDataSetChanged();
+        searchText.removeTextChangedListener(textwatcher);
     }
 }
